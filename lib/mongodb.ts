@@ -3,12 +3,7 @@ import mongoose from "mongoose";
 // Define the MongoDB connection string from environment variables
 const MONGODB_URI = process.env.MONGODB_URI as string;
 
-// Validate that the MongoDB URI is defined
-if (!MONGODB_URI) {
-  throw new Error(
-    "Please define the MONGODB_URI environment variable inside .env.local"
-  );
-}
+
 
 /**
  * Global type declaration for caching the mongoose connection
@@ -44,6 +39,13 @@ async function connectToDatabase(): Promise<mongoose.Connection> {
 
   // Create new connection promise if one doesn't exist
   if (!cached.promise) {
+    // Validate that the MongoDB URI is defined
+    if (!MONGODB_URI) {
+      throw new Error(
+        "Please define the MONGODB_URI environment variable inside .env.local"
+      );
+    }
+    
     const options: mongoose.ConnectOptions = {
       bufferCommands: false, // Disable command buffering
     };
