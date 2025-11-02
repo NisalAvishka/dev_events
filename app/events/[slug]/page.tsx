@@ -42,16 +42,53 @@ const EventTags = ({ tags }: { tags: string[] }) => (
   </div>
 );
 
+export async function generateStaticParams() {
+  if (!BASE_URL) {
+    // Return a placeholder to satisfy the requirement
+    return [{ slug: "placeholder" }];
+  }
+
+  try {
+    const response = await fetch(`${BASE_URL}/api/events`, {
+      next: { revalidate: 3600 },
+    });
+
+    if (!response.ok) {
+      return [{ slug: "placeholder" }];
+    }
+
+    const data = await response.json();
+    const events = data.events || [];
+
+    if (events.length === 0) {
+      return [{ slug: "placeholder" }];
+    }
+
+    return events.map((event: { slug: string }) => ({
+      slug: event.slug,
+    }));
+  } catch {
+    return [{ slug: "placeholder" }];
+  }
+}
+
 const EventsDetailsPage = async ({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) => {
+  "use cache";
   const { slug } = await params;
 
-  const request = await fetch(`${BASE_URL}/api/events/${slug}`);
+  const request = await fetch(`${BASE_URL}/api/events/${slug}`, {
+    next: { revalidate: 3600 }, // Cache for 1 hour
+  });
+
+  if (!request.ok) return notFound();
+
   const {
     event: {
+      _id,
       description,
       image,
       location,
@@ -131,7 +168,7 @@ const EventsDetailsPage = async ({
             ) : (
               <p>Be the first to book your spot!</p>
             )}
-            <BookEvent />
+            <BookEvent eventId={_id} slug={slug} />
           </div>
         </aside>
       </div>
