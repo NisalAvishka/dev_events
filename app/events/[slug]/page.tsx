@@ -43,10 +43,6 @@ const EventTags = ({ tags }: { tags: string[] }) => (
 );
 
 export async function generateStaticParams() {
-  if (!BASE_URL) {
-    // Return a placeholder to satisfy the requirement
-    return [{ slug: "placeholder" }];
-  }
 
   try {
     const response = await fetch(`${BASE_URL}/api/events`, {
