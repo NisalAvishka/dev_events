@@ -2,29 +2,18 @@ import { cacheLife } from "next/cache";
 import EventCard from "../components/EventCard";
 import { ExploreBtn } from "../components/ExploreBtn";
 import { IEvent } from "@/database";
+import { events } from "@/lib/constants";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+// const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const Home = async () => {
   "use cache";
   cacheLife("hours");
 
-  let events = [];
+  
+    // const response = await fetch(`${BASE_URL}/api/events`);
 
-  try {
-    const response = await fetch(`${BASE_URL}/api/events`, {
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      console.error("Failed to fetch events:", response.statusText);
-    } else {
-      const data = await response.json();
-      events = data.events || [];
-    }
-  } catch (error) {
-    console.error("Error fetching events:", error);
-  }
+    // const {events} = await response.json();
 
   return (
     <section>
@@ -41,7 +30,7 @@ const Home = async () => {
         <ul className="events">
           {events &&
             events.length > 0 &&
-            events.map((event: IEvent) => (
+            (events as IEvent[]).map((event: IEvent) => (
               <li key={event.title} className="list-none">
                 <EventCard {...event} />
               </li>
